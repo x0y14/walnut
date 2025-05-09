@@ -1,0 +1,7 @@
+on_game_start = {
+    events = {
+        trigger_event = {
+            id = sample_events.0001
+        }
+    }
+}
