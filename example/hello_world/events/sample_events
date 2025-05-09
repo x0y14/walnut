@@ -1,0 +1,5 @@
+namespace = sample_events
+
+sample_events.0001 = {
+    title = "hello, world"
+}
