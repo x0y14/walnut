@@ -160,6 +160,8 @@ func (i *IdentHandler) Handle(l *Lexer, opts *LexOptions) error {
 			} else {
 				return fmt.Errorf("ident include multiple dots: at=%v", l.pos)
 			}
+		} else {
+			break
 		}
 	}
 
