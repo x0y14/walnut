@@ -138,13 +138,34 @@ func (i *IdentHandler) Handle(l *Lexer, opts *LexOptions) error {
 	pos := NewPosition(l.pos, 0)
 	var ident []rune
 
+	dotFound := false
+	// 最初の一文字は，[a-zA-Z_]じゃないとダメ
+	r, _ := l.consume()
+	ident = append(ident, r)
+
 	for !l.isEof() {
 		if l.charIsAlpha() || l.charIs('_') {
+			// [a-zA-Z_]
 			r, _ := l.consume()
 			ident = append(ident, r)
-		} else {
-			break
+		} else if l.charIsNumber() {
+			// [0-9]
+			r, _ := l.consume()
+			ident = append(ident, r)
+		} else if l.charIs('.') {
+			if dotFound == false {
+				dotFound = true
+				r, _ := l.consume()
+				ident = append(ident, r)
+			} else {
+				return fmt.Errorf("ident include multiple dots: at=%v", l.pos)
+			}
 		}
+	}
+
+	// ended with dot?
+	if ident[len(ident)-1] == '.' {
+		return fmt.Errorf("ident ended with dot: at=%v", l.pos)
 	}
 
 	pos.EndedAt = l.pos
