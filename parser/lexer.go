@@ -34,6 +34,13 @@ func (l *Lexer) charIsAlpha() bool {
 	return false
 }
 
+func (l *Lexer) charIsNumber() bool {
+	if '0' <= l.chars[l.pos] && l.chars[l.pos] <= '9' {
+		return true
+	}
+	return false
+}
+
 func (l *Lexer) consume(r ...rune) (rune, bool) {
 	if len(r) == 0 {
 		_r := l.chars[l.pos]
@@ -63,7 +70,7 @@ func (l *Lexer) getHandler() TokenHandler {
 		return &WhitespaceHandler{}
 	case l.charIs('"'):
 		return &StringHandler{}
-	case l.charIs('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-'):
+	case l.charIsNumber() || l.charIs('-'):
 		return &NumericHandler{}
 	case l.charIs('{', '}', '='):
 		return &SymbolHandler{}
@@ -83,7 +90,7 @@ func (l *Lexer) Lex(opts *LexOptions, script string) (*Token, error) {
 	for !l.isEof() {
 		handler := l.getHandler()
 		if handler == nil {
-			return nil, fmt.Errorf("unexpected char: at=%v", l.chars[l.pos])
+			return nil, fmt.Errorf("unexpected char: at=%v", l.pos)
 		}
 		if err := handler.Handle(l, opts); err != nil {
 			return nil, err
@@ -131,13 +138,34 @@ func (i *IdentHandler) Handle(l *Lexer, opts *LexOptions) error {
 	pos := NewPosition(l.pos, 0)
 	var ident []rune
 
+	dotFound := false
+	// 最初の一文字は，[a-zA-Z_]じゃないとダメ
+	r, _ := l.consume()
+	ident = append(ident, r)
+
 	for !l.isEof() {
 		if l.charIsAlpha() || l.charIs('_') {
+			// [a-zA-Z_]
 			r, _ := l.consume()
 			ident = append(ident, r)
-		} else {
-			break
+		} else if l.charIsNumber() {
+			// [0-9]
+			r, _ := l.consume()
+			ident = append(ident, r)
+		} else if l.charIs('.') {
+			if dotFound == false {
+				dotFound = true
+				r, _ := l.consume()
+				ident = append(ident, r)
+			} else {
+				return fmt.Errorf("ident include multiple dots: at=%v", l.pos)
+			}
 		}
+	}
+
+	// ended with dot?
+	if ident[len(ident)-1] == '.' {
+		return fmt.Errorf("ident ended with dot: at=%v", l.pos)
 	}
 
 	pos.EndedAt = l.pos

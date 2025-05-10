@@ -31,6 +31,22 @@ func TestLexer_Lex(t *testing.T) {
 			nil,
 		},
 		{
+			"ident.ident",
+			"sample_events.0001",
+			&Token{
+				Pos:  NewPosition(0, 18),
+				Kind: Ident,
+				Raw:  []rune("sample_events.0001"),
+				Next: &Token{
+					Pos:  NewPosition(18, 18),
+					Kind: Eof,
+					Raw:  nil,
+					Next: nil,
+				},
+			},
+			nil,
+		},
+		{
 			"string",
 			"\"hello,world\"",
 			&Token{
