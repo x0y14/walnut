@@ -34,6 +34,13 @@ func (l *Lexer) charIsAlpha() bool {
 	return false
 }
 
+func (l *Lexer) charIsNumber() bool {
+	if '0' <= l.chars[l.pos] && l.chars[l.pos] <= '9' {
+		return true
+	}
+	return false
+}
+
 func (l *Lexer) consume(r ...rune) (rune, bool) {
 	if len(r) == 0 {
 		_r := l.chars[l.pos]
@@ -63,7 +70,7 @@ func (l *Lexer) getHandler() TokenHandler {
 		return &WhitespaceHandler{}
 	case l.charIs('"'):
 		return &StringHandler{}
-	case l.charIs('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-'):
+	case l.charIsNumber() || l.charIs('-'):
 		return &NumericHandler{}
 	case l.charIs('{', '}', '='):
 		return &SymbolHandler{}
