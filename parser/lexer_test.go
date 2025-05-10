@@ -169,7 +169,7 @@ func TestLexer_Lex(t *testing.T) {
 			token, err := lexer.Lex(opts, tt.input)
 			assert.Equal(t, tt.err, err)
 			if diff := cmp.Diff(token, tt.want); diff != "" {
-				t.Errorf("value missmatch\n%s", diff)
+				t.Errorf("value mismatch\n%s", diff)
 			}
 		})
 	}
