@@ -83,7 +83,7 @@ func (l *Lexer) Lex(opts *LexOptions, script string) (*Token, error) {
 	for !l.isEof() {
 		handler := l.getHandler()
 		if handler == nil {
-			return nil, fmt.Errorf("unexpected char: at=%v", l.chars[l.pos])
+			return nil, fmt.Errorf("unexpected char: at=%v", l.pos)
 		}
 		if err := handler.Handle(l, opts); err != nil {
 			return nil, err
